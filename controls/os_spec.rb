@@ -241,6 +241,7 @@ control 'os-11' do
   end
 end
 
+=begin
 control 'os-12' do
   impact 1.0
   title 'Detect vulnerabilities in the cpu-vulnerability-directory'
@@ -262,6 +263,7 @@ control 'os-12' do
     end
   end
 end
+=end
 
 control 'os-13' do
   impact 1.0
