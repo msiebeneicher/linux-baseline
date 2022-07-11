@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 #
-# Copyright 2015, Patrick Muench
+# Copyright:: 2015, Patrick Muench
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,12 +19,12 @@
 # author: Dominik Richter
 # author: Patrick Muench
 
-sysctl_forwarding = attribute('sysctl_forwarding', value: false, description: 'Is network forwarding needed?')
-kernel_modules_disabled = attribute('kernel_modules_disabled', value: 0, description: 'Should loading of kernel modules be disabled?')
+sysctl_forwarding = input('sysctl_forwarding', value: false, description: 'Is network forwarding needed?')
+kernel_modules_disabled = input('kernel_modules_disabled', value: 0, description: 'Should loading of kernel modules be disabled?')
 container_execution = begin
   virtualization.role == 'guest' && virtualization.system =~ /^(lxc|docker)$/
-rescue NoMethodError
-  false
+                      rescue NoMethodError
+                        false
 end
 
 control 'sysctl-01' do
@@ -405,5 +405,24 @@ control 'sysctl-33' do
     describe kernel_parameter('kernel.exec-shield') do
       its(:value) { should eq 1 }
     end
+  end
+end
+
+control 'sysctl-34' do
+  impact 1.0
+  title 'Ensure links are protected'
+  desc 'Protects against common exploits in regards to links, fifos and regular files created or controlled by attackers'
+  only_if { !container_execution }
+  describe kernel_parameter('fs.protected_fifos') do
+    its(:value) { should eq(1).or eq(2).or eq(nil) } # include nil because RHEL7 does not have this parameter
+  end
+  describe kernel_parameter('fs.protected_hardlinks') do
+    its(:value) { should eq 1 }
+  end
+  describe kernel_parameter('fs.protected_regular') do
+    its(:value) { should eq(2).or eq(nil) } # include nil because RHEL7 does not have this parameter
+  end
+  describe kernel_parameter('fs.protected_symlinks') do
+    its(:value) { should eq 1 }
   end
 end

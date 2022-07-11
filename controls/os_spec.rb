@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 #
-# Copyright 2015, Patrick Muench
+# Copyright:: 2015, Patrick Muench
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,27 +19,61 @@
 # author: Dominik Richter
 # author: Patrick Muench
 
-login_defs_umask = attribute('login_defs_umask', value: os.redhat? ? '077' : '027', description: 'Default umask to set in login.defs')
+login_defs_umask = input('login_defs_umask', value: os.redhat? ? '077' : '027', description: 'Default umask to set in login.defs')
 
-login_defs_passmaxdays = attribute('login_defs_passmaxdays', value: '60', description: 'Default password maxdays to set in login.defs')
-login_defs_passmindays = attribute('login_defs_passmindays', value: '7', description: 'Default password mindays to set in login.defs')
-login_defs_passwarnage = attribute('login_defs_passwarnage', value: '7', description: 'Default password warnage (days) to set in login.defs')
+login_defs_passmaxdays = input('login_defs_passmaxdays', value: '60', description: 'Default password maxdays to set in login.defs')
+login_defs_passmindays = input('login_defs_passmindays', value: '7', description: 'Default password mindays to set in login.defs')
+login_defs_passwarnage = input('login_defs_passwarnage', value: '7', description: 'Default password warnage (days) to set in login.defs')
 
 shadow_group = 'root'
 shadow_group = 'shadow' if os.debian? || os.suse? || os.name == 'alpine'
 container_execution = begin
   virtualization.role == 'guest' && virtualization.system =~ /^(lxc|docker)$/
-rescue NoMethodError
-  false
+                      rescue NoMethodError
+                        false
 end
 
-blacklist = attribute(
+blacklist = input(
   'blacklist',
   value: suid_blacklist.default,
   description: 'blacklist of suid/sgid program on system'
 )
 
 cpuvulndir = '/sys/devices/system/cpu/vulnerabilities/'
+
+# Overview of necessary mount options to be checked:
+#
+#---------------------------------------------------------
+#   Mount point              nodev  noexec  nosuid
+#   /boot                      v      v       v
+#   /dev                              v       v
+#   /dev/shm                   v      v       v
+#   /home                      v              v
+#   /run                       v              v
+#   /tmp                       v      v       v
+#   /var                       v              v
+#   /var/log                   v      v       v
+#   /var/log/audit             v      v       v
+#   /var/tmp                   v      v       v
+#---------------------------------------------------------
+
+mount_exec_blocklist = input(
+  'mount_exec_blocklist',
+  value: ['/boot', '/dev', '/dev/shm', '/tmp', '/var/log', '/var/log/audit', '/var/tmp'],
+  description: 'List of mountspoints where \'noexec\' mount option shoud be set'
+)
+
+mount_suid_blocklist = input(
+  'mount_suid_blocklist',
+  value: ['/boot', '/dev', '/dev/shm', '/home', '/run', '/tmp', '/var', '/var/log', '/var/log/audit', '/var/tmp'],
+  description: 'List of mountpoints where \'nosuid\' mount option shoud be set'
+)
+
+mount_dev_blocklist = input(
+  'mount_dev_blocklist',
+  value: ['/boot', '/dev/shm', '/home', '/run', '/tmp', '/var', '/var/log', '/var/log/audit', '/var/tmp'],
+  description: 'List of mountpoints where \'nodev\' mount option shoud be set'
+)
 
 control 'os-01' do
   impact 1.0
@@ -281,6 +315,48 @@ control 'os-13' do
       it { should_not be_writable.by('other') }
       it { should_not be_readable.by('group') }
       it { should_not be_readable.by('other') }
+    end
+  end
+end
+
+control 'os-14' do
+  impact 1.0
+  title 'Check mountpoints for noexec mount options'
+  desc 'Use the noexec mount options to limit attack vectors via mount points'
+
+  mount_exec_blocklist.each do |mnt_point|
+    next unless mount(mnt_point).mounted?
+
+    describe mount(mnt_point) do
+      its('options') { should include('noexec') }
+    end
+  end
+end
+
+control 'os-15' do
+  impact 1.0
+  title 'Check mountpoints for nosuid mount options'
+  desc 'Use the nosuid mount options to limit attack vectors via mount points'
+
+  mount_suid_blocklist.each do |mnt_point|
+    next unless mount(mnt_point).mounted?
+
+    describe mount(mnt_point) do
+      its('options') { should include('nosuid') }
+    end
+  end
+end
+
+control 'os-16' do
+  impact 1.0
+  title 'Check mountpoints for nodev mount options'
+  desc 'Use the nodev mount options to limit attack vectors via mount points'
+
+  mount_dev_blocklist.each do |mnt_point|
+    next unless mount(mnt_point).mounted?
+
+    describe mount(mnt_point) do
+      its('options') { should include('nodev') }
     end
   end
 end

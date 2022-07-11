@@ -1,5 +1,37 @@
 # Changelog
 
+## [2.8.3](https://github.com/dev-sec/linux-baseline/tree/2.8.3) (2022-03-18)
+
+[Full Changelog](https://github.com/dev-sec/linux-baseline/compare/2.8.2...2.8.3)
+
+**Merged pull requests:**
+
+- Change linting to Cookstyle [\#169](https://github.com/dev-sec/linux-baseline/pull/169) ([schurzi](https://github.com/schurzi))
+- Improve SUID find [\#168](https://github.com/dev-sec/linux-baseline/pull/168) ([magmax](https://github.com/magmax))
+
+## [2.8.2](https://github.com/dev-sec/linux-baseline/tree/2.8.2) (2022-01-12)
+
+[Full Changelog](https://github.com/dev-sec/linux-baseline/compare/2.8.1...2.8.2)
+
+**Merged pull requests:**
+
+- missing inputs changed [\#167](https://github.com/dev-sec/linux-baseline/pull/167) ([micheelengronne](https://github.com/micheelengronne))
+
+## [2.8.1](https://github.com/dev-sec/linux-baseline/tree/2.8.1) (2022-01-12)
+
+[Full Changelog](https://github.com/dev-sec/linux-baseline/compare/2.8.0...2.8.1)
+
+**Closed issues:**
+
+- Add checks for mount options \(noexec, nosuid, nodev\) [\#163](https://github.com/dev-sec/linux-baseline/issues/163)
+- Ensure links are protected [\#159](https://github.com/dev-sec/linux-baseline/issues/159)
+
+**Merged pull requests:**
+
+- use input instead of attribute [\#166](https://github.com/dev-sec/linux-baseline/pull/166) ([micheelengronne](https://github.com/micheelengronne))
+- feat\(os-14\) add rule to check noexec, nosuid and nodev mount options [\#164](https://github.com/dev-sec/linux-baseline/pull/164) ([cmhe](https://github.com/cmhe))
+- added sysctl-34 for checking link protection settings [\#160](https://github.com/dev-sec/linux-baseline/pull/160) ([cmhe](https://github.com/cmhe))
+
 ## [2.8.0](https://github.com/dev-sec/linux-baseline/tree/2.8.0) (2021-05-06)
 
 [Full Changelog](https://github.com/dev-sec/linux-baseline/compare/2.7.0...2.8.0)
