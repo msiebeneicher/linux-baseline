@@ -416,13 +416,13 @@ control 'sysctl-34' do
   describe kernel_parameter('fs.protected_fifos') do
     its(:value) { should eq(1).or eq(2).or eq(nil) } # include nil because RHEL7 does not have this parameter
   end
-  describe kernel_parameter('fs.protected_hardlinks') do
-    its(:value) { should eq 1 }
+  describe kernel_parameter('fs.protected_hardlinks') do # include nil because amzn linux does not have this parameter
+    its(:value) { should eq(1).or eq(nil) }
   end
   describe kernel_parameter('fs.protected_regular') do
     its(:value) { should eq(2).or eq(nil) } # include nil because RHEL7 does not have this parameter
   end
   describe kernel_parameter('fs.protected_symlinks') do
-    its(:value) { should eq 1 }
+    its(:value) { should eq(1).or eq(nil) } # include nil because amzn linux does not have this parameter
   end
 end
