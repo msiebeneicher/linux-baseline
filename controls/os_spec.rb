@@ -224,15 +224,6 @@ control 'os-07' do
   end
 end
 
-control 'os-08' do
-  impact 1.0
-  title 'Entropy'
-  desc 'Check system has enough entropy - greater than 1000'
-  describe file('/proc/sys/kernel/random/entropy_avail').content.to_i do
-    it { should >= 1000 }
-  end
-end
-
 control 'os-09' do
   impact 1.0
   title 'Check for .rhosts and .netrc file'
@@ -256,7 +247,10 @@ control 'os-10' do
     its(:content) { should match 'install jffs2 /bin/true' }
     its(:content) { should match 'install hfs /bin/true' }
     its(:content) { should match 'install hfsplus /bin/true' }
-    its(:content) { should match 'install squashfs /bin/true' }
+    # Ubuntu Snaps need SquashFS to function
+    unless service('snapd').running?
+      its(:content) { should match 'install squashfs /bin/true' }
+    end
     its(:content) { should match 'install udf /bin/true' }
     # if efi is active, do not disable vfat. otherwise the system
     # won't boot anymore
